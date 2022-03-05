@@ -120,10 +120,13 @@
 </template>
 
 <script>
+import {mapMutations} from "vuex";
+
 export default {
     name: "InvoiceModal",
     data(){
         return{
+            dateOptions: {year:"numeric", month: "short", day: "numeric"},
             billerStreetAddress: null,
             billerCity: null,
             billerZipCode: null,
@@ -145,11 +148,30 @@ export default {
             invoiceItemList: [],
             invoiceTotal: 0,
         }
+    },
+    created(){
+        //get curent date for invoice date field
+        this.invoiceDateUnix = Date.now();
+        this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString('en-us', this.dateOptions);
+    },
+    methods: {
+        ...mapMutations(["TOGGLE_INVOICE"]),
+        closeInvoice(){
+            this.TOGGLE_INVOICE();
+        }
+    },
+    watch: {
+        paymentTerms(newpaymentTerms){
+            const futureDate = new Date();
+            this.paymentDueDateUnix = futureDate.setDate(futureDate.getDate() + parseInt(newpaymentTerms));
+            this.paymentDueDate = new Date(this.paymentDueDateUnix).toLocaleDateString('en-us', this.dateOptions);
+        }
     }
 }
 </script>
 
 <style lang="scss" scoped>
+
 .invoice-wrap{
     position: fixed;
     top: 0;
@@ -158,6 +180,9 @@ export default {
     width: 100%;
     height: 100vh;
     overflow: scroll;
+    &::-webkit-scrollbar {
+        display: none;
+    }
     @media (min-width: 900px) {
         left: 90px;
     }
@@ -203,7 +228,7 @@ export default {
 
         // Invoice Work
 
-        .invice-work{
+        .invoice-work{
             .payment{
                 gap: 24px;
 
@@ -237,6 +262,12 @@ export default {
                         }
                     }
 
+                    .table-heading{
+                        margin-bottom: 16px;
+                        th{
+                            text-align: left;
+                        }
+                    }
                     .table-items{
                         position: relative;
                         margin-bottom: 24px;
@@ -251,8 +282,35 @@ export default {
                         }
                     }
                 }
+
+                .button{
+                    color: #fff;
+                    background-color: #252945;
+                    align-items: center;
+                    justify-content: center;
+                    width: 100%;
+
+                    img{
+                        margin-right: 4px;
+                    }
+                }
             }
         }
+
+        .save{
+            margin-top: 60px;
+
+            div{
+                flex: 1;
+            }
+
+            .right{
+                justify-content: flex-end;
+                button{
+                    width: 140px;
+                }
+            }
+         }
     }
 
     .input{
@@ -277,6 +335,5 @@ export default {
             outline: none;
         }
     }
-
 }
 </style>
