@@ -73,7 +73,7 @@
                 </div>
                 <div class="input flex flex-column">
                     <label for="paymentTerms">Payment Terms</label>
-                    <select type="text" required id="paymentTerms" v-model="paymentTerms">
+                    <select required id="paymentTerms" v-model="paymentTerms">
                         <option value="30">Net 30 Days</option>
                         <option value="60">Net 60 Days</option>
                     </select>
@@ -96,7 +96,7 @@
                             <td class="item-name"><input type="text" v-model="item.itemName"></td>
                             <td class="qty"><input type="text" v-model="item.qty"></td>
                             <td class="price"><input type="text" v-model="item.price"></td>
-                            <td class="total felx">${{item.total = item.qty * item.price}}</td>
+                            <td class="total felx">${{ (item.total = item.qty * item.price) }}</td>
                             <img @click="deleteInvoiceItem(item.id)" src="@/assets/icon-delete.svg" alt="">
                         </tr>
                     </table>
@@ -154,7 +154,6 @@ export default {
             invoiceDraft: null,
             invoiceItemList: [],
             invoiceTotal: 0,
-
         }
     },
     created(){
@@ -190,7 +189,7 @@ export default {
         calInvoiceTotal(){
             this.invoiceTotal = 0;
             this.invoiceItemList.forEach(item =>{
-                this.invoiceTotal += item.totla;
+                this.invoiceTotal += item.total;
             });
         },
         saveDraft(){
