@@ -4,12 +4,12 @@
     <div class="header flex">
       <div class="left flex flex-column">
         <h1>Invoices</h1>
-        <span>There are 4 total invoices</span>
+        <span>There are {{ invoiceData.length }} total invoices</span>
       </div>
       <div class="right flex">
         <div @click="toggleFilterMenu" class="filter flex">
           <span
-            >Filter by status</span
+            >Filter by status <span v-if="filteredInvoice">: {{ filteredInvoice }}</span></span
           >
           <img src="@/assets/icon-arrow-down.svg" alt="" />
           <ul v-show="filterMenu" class="filter-menu">
@@ -27,44 +27,68 @@
         </div>
       </div>
     </div>
-
-    <!--Invoices-->
+    <!-- Invoices -->
     <div v-if="invoiceData.length > 0">
-      <invoice v-for="(invoice, index) in invoiceData" :invoice="invoice" :key="index"></invoice>
+      <Invoice v-for="(invoice, index) in filteredData" :invoice="invoice" :key="index" />
     </div>
-    <div class="empty flex flex-column" v-else>
-      <img src="@/assets/illustration-empty.svg" alt="">
+    <div v-else class="empty flex flex-column">
+      <img src="@/assets/illustration-empty.svg" alt="" />
       <h3>There is nothing here</h3>
-      <p>reate a new invoice by clicking the New Invoice button and get started</p>
+      <p>Create a new invoice by clicking the New Invoice button and get started</p>
     </div>
   </div>
 </template>
 
 <script>
-import {mapMutations, mapState} from "vuex";
-import Invoice from '../components/Invoice.vue'
+import Invoice from "../components/Invoice";
+import { mapMutations, mapState } from "vuex";
 export default {
   name: "Home",
-  components: {
-    Invoice
-  },
-  data(){
+  data() {
     return {
       filterMenu: null,
-    }
+      filteredInvoice: null,
+    };
+  },
+  components: {
+    Invoice,
   },
   methods: {
-    ...mapMutations(['TOGGLE_INVOICE']),
-    newInvoice(){
+    ...mapMutations(["TOGGLE_INVOICE"]),
+    newInvoice() {
       this.TOGGLE_INVOICE();
     },
-    toggleFilterMenu(){
+
+    toggleFilterMenu() {
       this.filterMenu = !this.filterMenu;
-    }
+    },
+
+    filteredInvoices(e) {
+      if (e.target.innerText === "Clear Filter") {
+        this.filteredInvoice = null;
+        return;
+      }
+      this.filteredInvoice = e.target.innerText;
+    },
   },
   computed: {
-    ...mapState(['invoiceData'])
-  }
+    ...mapState(["invoiceData"]),
+
+    filteredData() {
+      return this.invoiceData.filter((invoice) => {
+        if (this.filteredInvoice === "Draft") {
+          return invoice.invoiceDraft === true;
+        }
+        if (this.filteredInvoice === "Pending") {
+          return invoice.invoicePending === true;
+        }
+        if (this.filteredInvoice === "Paid") {
+          return invoice.invoicePaid === true;
+        }
+        return invoice;
+      });
+    },
+  },
 };
 </script>
 
@@ -94,7 +118,6 @@ export default {
       }
 
       .filter {
-        cursor: pointer;
         position: relative;
         margin-right: 40px;
         cursor: pointer;
